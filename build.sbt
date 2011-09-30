@@ -6,7 +6,10 @@ version := "0.1"
 
 scalaVersion := "2.9.1"
 
-resolvers += "Scala-Tools Nexus Repository for Releases" at "http://nexus.scala-tools.org/content/repositories/releases"
+resolvers ++= Seq(
+  "Scala-Tools Nexus Repository for Releases" at "http://nexus.scala-tools.org/content/repositories/releases",
+  "Scala-Tools Maven Repository" at "http://www.scala-tools.org/repo-releases/"
+)
 
 libraryDependencies ++= Seq(
   "junit" % "junit" % "4.8" % "test",
@@ -17,6 +20,7 @@ libraryDependencies ++= Seq(
   "net.debasishg" %% "redisclient" % "2.4.0", //https://github.com/debasishg/scala-redis.git
   "commons-configuration" % "commons-configuration" % "1.7",
   "javax.servlet" % "servlet-api" % "2.3" % "provided",
-  "org.slf4j" % "slf4j-jdk14" % "1.6.2"
+  "org.clapper" %% "avsl" % "0.3.6"
+  //"org.slf4j" % "slf4j-jdk14" % "1.6.2"
 )
 
