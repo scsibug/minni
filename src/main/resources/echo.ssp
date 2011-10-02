@@ -1,3 +1,14 @@
-<%@ var name: String = "Greg" %>
-<%@ var state: String = "Texas" %>
-<h1>Hello, ${name} from ${state}</h1>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Content Repo</title>
+  </head>
+  <body>
+    <h1>Content Repo</h1>
+    <ul>
+      <li><a href="#">Login</a></li>
+      <!--<li>Logout</li>-->
+    </ul>
+    <h2>Welcome to CR, nothing here yet.</h2>
+  </body>
+</html>
