@@ -20,7 +20,8 @@ libraryDependencies ++= Seq(
   "net.debasishg" %% "redisclient" % "2.4.0", //https://github.com/debasishg/scala-redis.git
   "commons-configuration" % "commons-configuration" % "1.7",
   "javax.servlet" % "servlet-api" % "2.3" % "provided",
-  "org.clapper" %% "avsl" % "0.3.6"
+  "org.clapper" %% "avsl" % "0.3.6",
+  "org.apache.tika" % "tika-parsers" % "0.9"
   //"org.slf4j" % "slf4j-jdk14" % "1.6.2"
 )
 
