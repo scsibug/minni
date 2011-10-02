@@ -3,24 +3,29 @@ import unfiltered.response._
 import unfiltered.jetty._
 import unfiltered.scalate._
 import org.apache.commons.configuration.{HierarchicalINIConfiguration}
+import org.slf4j._
 
 object ContentRepoServer {
   var port = 8089
 
-  // Echo Plan
-  val index = unfiltered.filter.Planify {
-    case req => Ok ~> Scalate(req, "index.ssp")
-  }
+  // Root Plan
+//  val index = unfiltered.filter.Planify {
+//    case req => Ok ~> Scalate(req, "index.ssp")
+//  }
+
+  var plans = Seq(new RootPlan)
+
+  def applyPlans = plans.foldLeft(_: Server)(_ filter _)
 
   def main(args: Array[String]) {
     println("Starting server")
     println("Reading Configuration")
     readConfiguration
-    Http(port)
-    .context("/static") {
-      _.resources(getClass().getResource("/static/"))
-    }
-    .filter(index).run()
+    applyPlans(Http(port)
+               .context("/static") {
+                 _.resources(getClass().getResource("/static/"))
+               }).run()
+
   }
 
   def readConfiguration() {
