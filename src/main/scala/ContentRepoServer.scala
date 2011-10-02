@@ -8,9 +8,8 @@ object ContentRepoServer {
   var port = 8089
 
   // Echo Plan
-  val echo = unfiltered.filter.Planify {
-    //case Path(Seg(p :: Nil)) => ResponseString(p)
-    case req => Ok ~> Scalate(req, "echo.ssp")
+  val index = unfiltered.filter.Planify {
+    case req => Ok ~> Scalate(req, "index.ssp")
   }
 
   def main(args: Array[String]) {
@@ -21,7 +20,7 @@ object ContentRepoServer {
     .context("/static") {
       _.resources(getClass().getResource("/static/"))
     }
-    .filter(echo).run()
+    .filter(index).run()
   }
 
   def readConfiguration() {
