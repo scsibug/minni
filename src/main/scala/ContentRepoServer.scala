@@ -8,24 +8,20 @@ import org.slf4j._
 object ContentRepoServer {
   var port = 8089
 
-  // Root Plan
-//  val index = unfiltered.filter.Planify {
-//    case req => Ok ~> Scalate(req, "index.ssp")
-//  }
-
-  var plans = Seq(new RootPlan)
-
-  def applyPlans = plans.foldLeft(_: Server)(_ filter _)
-
   def main(args: Array[String]) {
     println("Starting server")
     println("Reading Configuration")
     readConfiguration
+    // Configure AuthPlan
+    var authplan = new AuthPlan
+    // Order of plan evaluation
+    var plans = Seq(new RootPlan,
+                    authplan)
+    def applyPlans = plans.foldLeft(_: Server)(_ filter _)
     applyPlans(Http(port)
                .context("/static") {
                  _.resources(getClass().getResource("/static/"))
                }).run()
-
   }
 
   def readConfiguration() {

@@ -26,16 +26,14 @@ class RootPlan extends Plan {
       logger.debug("HEAD /")
       Head
     }
-    
-
-case req @ GET(Path(Seg(Nil))) => {
+    case req @ GET(Path(Seg(Nil))) => {
       logger.debug("GET /")
-      val cached = 
+      val cached =
         req match {
           case IfNoneMatch(xs) => xs contains eTag
           case IfModifiedSince(xs) => creationDate.after(xs)
           case _ => false
-      }
+        }
       Head ~> Caching ~> (if (cached) NotModified else Scalate(req, "index.ssp"))
     }
   }

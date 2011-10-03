@@ -22,7 +22,7 @@ libraryDependencies ++= Seq(
   "commons-configuration" % "commons-configuration" % "1.7",
   "javax.servlet" % "servlet-api" % "2.3" % "provided",
   "org.clapper" %% "avsl" % "0.3.6",
-  "org.apache.tika" % "tika-parsers" % "0.9"
-  //"org.apache.httpcomponents" % "httpclient" % "4.1.2"
+  "org.apache.tika" % "tika-parsers" % "0.9",
+  "org.apache.httpcomponents" % "httpclient" % "4.1.2"
 )
 
