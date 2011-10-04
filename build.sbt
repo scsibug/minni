@@ -19,6 +19,7 @@ libraryDependencies ++= Seq(
   //"net.databinder" %% "unfiltered-json" % "0.5.0",
   "net.databinder" %% "unfiltered-scalate" % "0.5.0",
   "net.liftweb" %% "lift-json" % "2.4-M4",
+  "org.mindrot" % "jbcrypt" % "0.3m",
   "net.debasishg" %% "redisclient" % "2.4.0", //https://github.com/debasishg/scala-redis.git
   "commons-configuration" % "commons-configuration" % "1.7",
   "javax.servlet" % "servlet-api" % "2.3" % "provided",
