@@ -9,6 +9,8 @@ import unfiltered.filter._
 import unfiltered.Cookie
 import org.slf4j._
 
+import model.User
+
 trait AuthService[T]{
   def auth(username: String, password: String): Option[T]
 }
@@ -90,9 +92,13 @@ class AuthPlan extends Plan {
         pass <- par("password").headOption
       } yield {
         // If username already exists or is invalid, send 409 conflict
-        // Create account
-        // Send 201 Created with user URL
-        Redirect("/secure")
+        if (User.isUsernameValid(user)) {
+          // Create account
+          // Send 201 Created with user URL
+          Redirect("/secure")
+        } else {
+          Conflict ~> ResponseString("Username is invalid")
+        }
       }) getOrElse {
         ResponseString("Missing parameters")
       }

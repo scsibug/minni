@@ -5,8 +5,8 @@ import scala.collection.mutable.{Map}
 object RedisStore {
   private val stores = Map[String, RedisClient]()
 
-  def getStore(id: String) {
-    stores get id
+  def getStore(id: String) : RedisClient = {
+    stores(id)
   }
 
   def createStore(name: String, host: String, port: Int, database: Int) {
