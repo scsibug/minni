@@ -1,3 +1,4 @@
+package com.gregheartsfield.minni
 import org.apache.commons.configuration.{HierarchicalINIConfiguration}
 
 object Config {

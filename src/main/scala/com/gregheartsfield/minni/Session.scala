@@ -1,3 +1,5 @@
+package com.gregheartsfield.minni
+
 // originally from https://gist.github.com/1152512
 
 //import unfiltered.jetty._
@@ -79,12 +81,17 @@ class AuthPlan extends Plan {
       }) getOrElse {
         ResponseString("dupa")
       }
+
+    // GET to /register to see the registration form
+    // POST to register to create a new account
     case Path("/register") & Params(par) & Cookies(cookies) =>
       (for {
         user <- par("user").headOption
         pass <- par("password").headOption
       } yield {
-        // Check if username exists
+        // If username already exists or is invalid, send 409 conflict
+        // Create account
+        // Send 201 Created with user URL
         Redirect("/secure")
       }) getOrElse {
         ResponseString("Missing parameters")

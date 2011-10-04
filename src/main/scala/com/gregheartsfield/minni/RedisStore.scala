@@ -1,3 +1,5 @@
+package com.gregheartsfield.minni
+
 import com.redis._
 import scala.collection.mutable.{Map}
 object RedisStore {

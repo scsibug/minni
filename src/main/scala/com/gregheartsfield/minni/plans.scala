@@ -1,3 +1,5 @@
+package com.gregheartsfield.minni
+
 import unfiltered.filter._
 import unfiltered.request._
 import unfiltered.response._
