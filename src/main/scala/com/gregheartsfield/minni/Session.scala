@@ -89,18 +89,24 @@ class AuthPlan extends Plan {
     case Path("/register") & Params(par) & Cookies(cookies) =>
       (for {
         user <- par("user").headOption
+        email <- par("email").headOption
         pass <- par("password").headOption
       } yield {
         // If username already exists or is invalid, send 409 conflict
-        if (User.isUsernameValid(user)) {
+        if (User.isUserAvailable(user, email)) {
           // Create account
-          // Send 201 Created with user URL
-          Redirect("/secure")
+          val u = User(user,email,pass)
+          if (u.isDefined) {
+            // Send 201 Created with user URL
+            Created ~> Redirect(u.get url)
+          } else {
+            InternalServerError ~> ResponseString("Error creating user")
+          }
         } else {
           Conflict ~> ResponseString("Username is invalid")
         }
       }) getOrElse {
-        ResponseString("Missing parameters")
+        Conflict ~> ResponseString("Missing parameters")
       }
   }
 }
