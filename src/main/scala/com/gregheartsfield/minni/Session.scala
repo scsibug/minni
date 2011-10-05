@@ -40,29 +40,6 @@ object RedisSessionStore extends SessionStore[UserSession, String] {
     sid
   }
 
-//  def dump = storage.toMap
-
-  protected def generateSid = scala.util.Random.alphanumeric.take(256).mkString
-}
-
-object SimpleSessionStore extends SessionStore[UserSession, String] {
-  val logger = LoggerFactory.getLogger(classOf[RootPlan])
-
-  private val storage = scala.collection.mutable.Map[String, UserSession]()
-
-  def get(sid: String) = storage get sid
-
-  def put(data: UserSession) = {
-    val sid = generateSid
-    logger.debug("Saving user session "+data)
-    SimpleSessionStore.synchronized {
-      storage += (sid -> data)
-    }
-    sid
-  }
-
-  def dump = storage.toMap
-
   protected def generateSid = scala.util.Random.alphanumeric.take(256).mkString
 }
 
@@ -72,16 +49,11 @@ class AuthPlan extends Plan {
   val logger = LoggerFactory.getLogger(classOf[AuthPlan])
 
   def intent = {
-    case Path("/dump") & Cookies(cookies) =>
-      ResponseString(
-        "session: " + SimpleSessionStore.dump.toString + "\n" +
-        "cookies: " + cookies.toString
-      )
 
     case Path("/secure") & Cookies(cookies) =>
       (for {
         sid <- cookies(SESSION_KEY)
-        data <- SimpleSessionStore.get(sid.value)
+        data <- RedisSessionStore.get(sid.value)
       } yield {
         ResponseString("Hello " + data.username)
       }) getOrElse {
@@ -98,7 +70,7 @@ class AuthPlan extends Plan {
         data <- SimpleAuthService.auth(user, pass)
       } yield {
         logger.info("Successful login for "+user)
-        ResponseCookies(Cookie(SESSION_KEY, SimpleSessionStore.put(data))) ~> Redirect("/secure")
+        ResponseCookies(Cookie(SESSION_KEY, RedisSessionStore.put(data))) ~> Redirect("/secure")
       }) getOrElse {
         ResponseString("dupa")
       }

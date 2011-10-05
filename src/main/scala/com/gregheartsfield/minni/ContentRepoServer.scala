@@ -12,7 +12,7 @@ object ContentRepoServer {
   def main(args: Array[String]) {
     println("Starting server on port "+Config.httpPort)
     // Setup redis clients
-    RedisStore.createStore("cache",
+    RedisStore.createStore("session",
                            Config.redisHost,
                            Config.redisPort,
                            Config.redisSessionDB)
@@ -20,10 +20,13 @@ object ContentRepoServer {
                            Config.redisHost,
                            Config.redisPort,
                            Config.redisMainDB)
-    // Configure AuthPlan
+    // Configure AuthPlan for login/register/logout
     var authplan = new AuthPlan
+    // UserPlan for user pages
+    var userplan = new UserPlan
     // Order of plan evaluation
     var plans = Seq(new RootPlan,
+                    userplan,
                     authplan)
     def applyPlans = plans.foldLeft(_: Server)(_ filter _)
     applyPlans(Http(Config.httpPort)
