@@ -36,7 +36,7 @@ class RootPlan extends Plan {
           case IfModifiedSince(xs) => creationDate.after(xs)
           case _ => false
         }
-      Head ~> Caching ~> (if (cached) NotModified else Scalate(req, "index.ssp"))
+      Head ~> Caching ~> (if (cached) NotModified else Scalate(req, "index.scaml"))
     }
   }
 }

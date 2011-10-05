@@ -1,0 +1,12 @@
+!!! 5
+%html{:lang => "en"}
+  %head
+    %title Register Account
+  %body
+    %h1 Register Account
+    %form{:action => "/register", :method => "POST"}
+      %input{:name => "username", "placeholder" => "Username"}
+      %input{:name => "email", :type => "email", "placeholder" => "Email"}
+      %input{:name => "password", :type => "password", "placeholder" => "Password"}
+      %input{:type => "submit", :value => "Register"}
+
