@@ -5,6 +5,8 @@ import net.liftweb.json._
 import net.liftweb.json.JsonDSL._
 import org.mindrot.jbcrypt._
 
+
+
 class User (username: String, var email: String, var passhash: String) {
 
   def toJson = ("username" -> username) ~ ("email" -> email) ~ ("passhash" -> passhash)
@@ -17,23 +19,43 @@ class User (username: String, var email: String, var passhash: String) {
     passhash = BCrypt.hashpw(pass, BCrypt.gensalt(12));
   }
 
+  def save() = {
+    val r = RedisStore.getStore("main");
+    r.set(User.keyFromUsername(username), compact(render(toJson)))
+    // ensure our email address exists in the email index
+    User.reserveEmail(email)
+  }
+
+  // Update email index in Redis (removing old email)
+  // Does not update the user document.
+  def updateEmail(value: String) {
+    User.freeEmail(email)
+    User.reserveEmail(value) match {
+      case Some(1) => true
+      case _ => false
+    }
+  }
+
   def url = "/users/"+username
 }
 
 object User {
   val r = RedisStore.getStore("main");
   def keyFromUsername(username: String) : String = "user."+username
-  var email_set = "emails"
+  val email_set = "emails"
+
+  def freeEmail(email: String) = r.srem(email_set, email)
+  def emailReserved(email: String) = r.sismember(email_set, email)
+  def reserveEmail(email: String) = r.sadd(email_set, email)
 
   // Check if user/email are unused
   def isUserAvailable(username: String, email: String) : Boolean = {
     // Valid usernames >=3 characters, and email/username not currently in use
     !r.exists(keyFromUsername(username)) &&
-      (username.length>2) &&
-      !r.sismember(email_set, email)
+      (username.length>2) && !emailReserved(email)
   }
 
-  // retrieve a user by name
+  // retrieve a user by name (from redis)
   def apply(username: String) : Option[User] = {
     // Retrieve from redis
     val j = r.get(keyFromUsername(username))
@@ -46,12 +68,12 @@ object User {
     u headOption
   }
 
-  // Create a new user
+  // Create a new user, storing in redis
   def apply(username: String, email: String, password: String) : Option[User] = {
     val u = new User(username, email, "")
     u.setPassword(password)
     if (r.setnx(keyFromUsername(username), compact(render(u.toJson)))) {
-      r.sadd(email_set, email)
+      reserveEmail(email)
       Some(u)
     } else {
       None
