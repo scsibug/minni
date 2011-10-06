@@ -63,6 +63,14 @@ class AuthPlan extends Plan {
         ResponseString("Go away!")
       }
 
+    // Any method sent to /logout will destroy the session
+    case req@Path("/logout") & Cookies(cookies) =>
+      Authed(req) match {
+        case Some(u) => RedisSessionStore.destroy((cookies(Config.sessionKey).get)value)
+        case _ =>
+      }
+      Ok ~> Scalate(req, "login.scaml")
+    
     case req@GET(Path("/login")) =>
       Scalate(req, "login.scaml")
 
