@@ -45,14 +45,15 @@ object RedisSessionStore extends SessionStore[UserSession, String] {
 
 class AuthPlan extends Plan {
   // TODO: put in configuration file
-  val SESSION_KEY = "x2gmx3m0t723mgx40t7823mtgxo"
+  Config.sessionKey
+  //val SESSION_KEY = "x2gmx3m0t723mgx40t7823mtgxo"
   val logger = LoggerFactory.getLogger(classOf[AuthPlan])
 
   def intent = {
 
     case Path("/secure") & Cookies(cookies) =>
       (for {
-        sid <- cookies(SESSION_KEY)
+        sid <- cookies(Config.sessionKey)
         data <- RedisSessionStore.get(sid.value)
       } yield {
         ResponseString("Hello " + data.username)
@@ -70,7 +71,7 @@ class AuthPlan extends Plan {
         data <- SimpleAuthService.auth(user, pass)
       } yield {
         logger.info("Successful login for "+user)
-        ResponseCookies(Cookie(SESSION_KEY, RedisSessionStore.put(data))) ~> Redirect("/secure")
+        ResponseCookies(Cookie(Config.sessionKey, RedisSessionStore.put(data))) ~> Redirect("/secure")
       }) getOrElse {
         ResponseString("dupa")
       }
@@ -104,3 +105,17 @@ class AuthPlan extends Plan {
       }
   }
 }
+
+object Authed {
+  def unapply[T](r: HttpRequest[T]) = {
+    val c = r match { case Cookies(cookies) => cookies }
+    (for {
+      sid <- c(Config.sessionKey)
+      data <- RedisSessionStore.get(sid.value)
+    } yield {
+      data.username
+    })
+  }
+  def apply[T](r: HttpRequest[T]): Option[String] = Authed.unapply(r)
+}
+
