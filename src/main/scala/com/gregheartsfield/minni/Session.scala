@@ -32,6 +32,8 @@ object RedisSessionStore extends SessionStore[UserSession, String] {
   val logger = LoggerFactory.getLogger(classOf[AuthPlan])
   val r = RedisStore.getStore("session");
   def get(sid: String) = r.get(sid) map {UserSession(_)}
+  def destroy(sid: String) = r.del(sid)
+
   def put(data: UserSession) = {
     val sid = generateSid
     data match {
@@ -81,19 +83,27 @@ class AuthPlan extends Plan {
       Scalate(req, "register.scaml")
 
     // POST to register to create a new account
-    case POST(Path("/register")) & Params(par) & Cookies(cookies) =>
+    case req@POST(Path("/register")) & Params(par) & Cookies(cookies) =>
       (for {
         user <- par("username").headOption
         email <- par("email").headOption
         pass <- par("password").headOption
       } yield {
+        // If the user is already authenticated, log them out.
+        Authed(req) match {
+          case Some(u) => RedisSessionStore.destroy((cookies(Config.sessionKey).get)value)
+          case _ =>
+        }
+        
         // If username already exists or is invalid, send 409 conflict
         if (User.isUserAvailable(user, email)) {
           // Create account
           val u = User(user,email,pass)
           if (u.isDefined) {
-            // Send 201 Created with user URL
-            Created ~> Redirect(u.get url)
+            // Set cookie and send 201 to user URL
+            val sess_data = (SimpleAuthService.auth(user, pass) get)
+            Created ~> ResponseCookies(Cookie(Config.sessionKey,
+                                              RedisSessionStore.put(sess_data))) ~> Redirect(u.get url)
           } else {
             InternalServerError ~> ResponseString("Error creating user")
           }
